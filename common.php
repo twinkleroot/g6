@@ -307,14 +307,26 @@ if (isset($_REQUEST['w'])) {
     $w = '';
 }
 
+// 짧은 주소 지원을 위한 내용 추가
+// 설치된 그누보드의 기본 경로
+$basepath = str_replace($_SERVER['DOCUMENT_ROOT'], '', __DIR__);
+// uri 에서 route 정보를 얻음
+$baseuri = str_replace($basepath, '', $_SERVER['REQUEST_URI']);   // 설치된 그누보드의 기본 경로를 제외한 uri
+$segments = array_values(array_filter(explode('/', $baseuri)));
+
 if (isset($_REQUEST['wr_id'])) {
     $wr_id = (int)$_REQUEST['wr_id'];
+} else if ($segments[0] == 'board' && isset($segments[1]) && isset($segments[2])) {
+    $wr_id = (int)$segments[2];
 } else {
     $wr_id = 0;
 }
 
 if (isset($_REQUEST['bo_table'])) {
     $bo_table = preg_replace('/[^a-z0-9_]/i', '', trim($_REQUEST['bo_table']));
+    $bo_table = substr($bo_table, 0, 20);
+} else if (isset($segments[0]) && $segments[0] == 'board') {
+    $bo_table = preg_replace('/[^a-z0-9_]/i', '', trim($segments[1]));
     $bo_table = substr($bo_table, 0, 20);
 } else {
     $bo_table = '';
